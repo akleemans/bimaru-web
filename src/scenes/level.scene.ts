@@ -1,39 +1,25 @@
-import {Level, LevelService} from "../level.service";
-import {Cell, CellState} from "../objects/Cell";
-import {NumberCell} from "../objects/NumberCell";
 import Sprite = Phaser.GameObjects.Sprite;
-
-export class Coords {
-    x: number;
-    y: number;
-
-    constructor(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-    }
-}
+import {Level} from '../level';
+import {LevelService} from '../level.service';
+import {Cell} from '../model/cell';
+import {CellState} from '../model/cell-state';
+import {NumberCell} from '../model/number-cell';
 
 export class LevelScene extends Phaser.Scene {
     private gridSize = 32;
-    private offset = new Coords(16 + 35, 16);
+    private offsetX = 16 + 35;
+    private offsetY = 16;
     private level: Level;
     private levelState: Cell[][];
-    // private finished: boolean;
     private colNumbers: NumberCell[];
     private rowNumbers: NumberCell[];
     private overviewShips: Sprite[][][];
-
     private dialogShown: boolean;
-    private dialogButton: Phaser.GameObjects.Sprite;
-    private dialogButtonText: Phaser.GameObjects.BitmapText;
 
     public constructor() {
         super({
-            key: "LevelScene"
+            key: 'LevelScene',
         });
-    }
-
-    public preload(): void {
     }
 
     public create(data): void {
@@ -42,41 +28,38 @@ export class LevelScene extends Phaser.Scene {
         this.rowNumbers = [];
         this.levelState = [];
         this.overviewShips = [];
-        // this.finished = false;
         this.dialogShown = false;
-        console.log('fetching level for diff=', data.difficulty, 'level:', data.level);
         this.level = LevelService.getLevelData(data.difficulty, data.level);
-        console.log('level create(), data:', data, 'level:', this.level);
 
         // buttons
-        this.add.text(25, 30, '⇐', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive().on('pointerdown', () => {
+        this.add.text(25, 30, '⇐', {font: '26px'}).setOrigin(0.5, 0.5)
+            .setTint(0x0).setInteractive().on('pointerdown', () => {
             if (!this.dialogShown) {
                 this.showBackDialog();
             }
         });
-        this.add.text(25, 60, '⤾', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive().on('pointerdown', () => {
+        this.add.text(25, 60, '⤾', {font: '26px'}).setOrigin(0.5, 0.5)
+            .setTint(0x0).setInteractive().on('pointerdown', () => {
             if (!this.dialogShown) {
                 this.showRestartDialog();
             }
         });
-
-        // ship overview
         this.drawOverview();
 
         // grid lines
         for (let i = 0; i < this.level.size + 1; i++) {
             const lineStyle = {width: 0.5, color: 0x000000, alpha: 1.0};
             // vertical
-            let x = this.offset.x + i * this.gridSize;
-            let y = this.offset.y;
-            let yEnd = this.offset.y + this.level.size * this.gridSize;
-            let graphics = this.add.graphics({lineStyle, x: 0, y: 0})
+            let x = this.offsetX + i * this.gridSize;
+            let y = this.offsetY;
+            const yEnd = this.offsetY + this.level.size * this.gridSize;
+            const graphics = this.add.graphics({lineStyle, x: 0, y: 0})
                 .strokeLineShape(new Phaser.Geom.Line(x, y, x, yEnd));
 
             // horizontal
-            x = this.offset.x;
-            y = this.offset.y + i * this.gridSize;
-            let xEnd = this.offset.x + this.level.size * this.gridSize;
+            x = this.offsetX;
+            y = this.offsetY + i * this.gridSize;
+            const xEnd = this.offsetX + this.level.size * this.gridSize;
             this.add.graphics({lineStyle, x: 0, y: 0})
                 .strokeLineShape(new Phaser.Geom.Line(x, y, xEnd, y));
         }
@@ -85,37 +68,51 @@ export class LevelScene extends Phaser.Scene {
         for (let i = 0; i < this.level.size; i++) {
             this.levelState.push([]);
             for (let j = 0; j < this.level.size; j++) {
-
-                let c = this.level.baseGrid[i][j];
-                let x = this.offset.x + (j + 0.5) * this.gridSize;
-                let y = this.offset.y + (i + 0.5) * this.gridSize;
+                const c = this.level.baseGrid[i][j];
+                const x = this.offsetX + (j + 0.5) * this.gridSize;
+                const y = this.offsetY + (i + 0.5) * this.gridSize;
                 const state = Cell.getCellState(c);
                 const fixed = (state !== CellState.EMPTY);
-                const cell = new Cell(this, j, i, x, y, state, fixed, this.level.size);
+                const cell = new Cell(this, j, i, x, y, state, fixed);
                 this.levelState[i].push(cell);
             }
         }
 
-        // initialize grid numbers
         // initialize grid
         for (let i = 0; i < this.level.size; i++) {
             // vertical
             let c = this.level.baseGrid[this.level.size][i];
-            let x = this.offset.x + (i + 0.5) * this.gridSize;
-            let y = this.offset.y + (this.level.size + 0.5) * this.gridSize;
-            let num = new NumberCell(this, x, y, Number.parseInt(c), this.level.size);
+            let x = this.offsetX + (i + 0.5) * this.gridSize;
+            let y = this.offsetY + (this.level.size + 0.5) * this.gridSize;
+            let num = new NumberCell(this, x, y, Number.parseInt(c, 10));
             this.colNumbers.push(num);
 
             // horizontal
             c = this.level.baseGrid[i][this.level.size];
-            x = this.offset.x + (this.level.size + 0.5) * this.gridSize;
-            y = this.offset.y + (i + 0.5) * this.gridSize;
-            num = new NumberCell(this, x, y, Number.parseInt(c), this.level.size);
+            x = this.offsetX + (this.level.size + 0.5) * this.gridSize;
+            y = this.offsetY + (i + 0.5) * this.gridSize;
+            num = new NumberCell(this, x, y, Number.parseInt(c, 10));
             this.rowNumbers.push(num);
         }
 
         // update number colours & ship overview
         this.updateLevel(0, 0);
+    }
+
+    public isDialogShown(): boolean {
+        return this.dialogShown;
+    }
+
+    public updateLevel(x: number, y: number): void {
+        this.updateSurroundings(x, y);
+        this.updateNumberTints();
+        this.updateShipOverviewStatus();
+
+        // check for winning
+        if (this.isLevelFinished()) {
+            LevelService.addSolvedLevel(this.level.difficulty, this.level.nr);
+            this.showWinDialog();
+        }
     }
 
     private drawOverview() {
@@ -162,40 +159,16 @@ export class LevelScene extends Phaser.Scene {
         this.overviewShips.push([fourShip]);
     }
 
-    public isDialogShown(): boolean {
-        return this.dialogShown;
-    }
-
-    public updateLevel(x: number, y: number): void {
-        this.updateSurroundings(x, y);
-        this.updateNumberTints();
-        this.updateShipOverviewStatus();
-
-        // check for winning
-        if (this.isLevelFinished()) {
-            // this.finished = true;
-            LevelService.addSolvedLevel(this.level.difficulty, this.level.nr);
-            this.showWinDialog();
-        }
-        /*
-        if (this.finished || this.isLevelFinished()) {
-            console.log('level solved!');
-            if (!this.finished) {
-                this.finish();
-            }
-            return;
-        }*/
-    }
-
     private updateNumberTints() {
         for (let i = 0; i < this.level.size; i++) {
-            let shipCountX = 0, shipCountY = 0;
+            let shipCountX = 0;
+            let shipCountY = 0;
             for (let j = 0; j < this.level.size; j++) {
-                if (Cell.isShip(this.levelState[i][j].state)) {
-                    shipCountX += 1
+                if (Cell.isShip(this.levelState[i][j].getState())) {
+                    shipCountX += 1;
                 }
-                if (Cell.isShip(this.levelState[j][i].state)) {
-                    shipCountY += 1
+                if (Cell.isShip(this.levelState[j][i].getState())) {
+                    shipCountY += 1;
                 }
             }
             this.rowNumbers[i].updateColor(shipCountX);
@@ -214,30 +187,33 @@ export class LevelScene extends Phaser.Scene {
                 }
 
                 // 2-ships
-                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) == CellState.LEFT ||
-                    cellState === CellState.DOWN && this.getCellState(i + 1, j) == CellState.UP) {
+                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) === CellState.LEFT ||
+                    cellState === CellState.DOWN && this.getCellState(i + 1, j) === CellState.UP) {
                     counts[1] += 1;
                 }
 
                 // 3-ships
-                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i, j + 2) == CellState.LEFT ||
-                    cellState === CellState.DOWN && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i + 2, j) == CellState.UP) {
+                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) === CellState.BLOCK &&
+                    this.getCellState(i, j + 2) === CellState.LEFT ||
+                    cellState === CellState.DOWN && this.getCellState(i, j + 1) === CellState.BLOCK &&
+                    this.getCellState(i + 2, j) === CellState.UP) {
                     counts[2] += 1;
                 }
 
                 // 4-ships
-                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i, j + 2) == CellState.BLOCK && this.getCellState(i, j + 3) == CellState.LEFT ||
-                    cellState === CellState.DOWN && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i, j + 2) == CellState.BLOCK && this.getCellState(i + 3, j) == CellState.UP) {
+                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) === CellState.BLOCK &&
+                    this.getCellState(i, j + 2) === CellState.BLOCK && this.getCellState(i, j + 3) === CellState.LEFT ||
+                    cellState === CellState.DOWN && this.getCellState(i, j + 1) === CellState.BLOCK &&
+                    this.getCellState(i, j + 2) === CellState.BLOCK && this.getCellState(i + 3, j) === CellState.UP) {
                     counts[3] += 1;
                 }
-
             }
         }
 
         // singles
         for (let i = 0; i < 4; i++) {
             let colorCount = 0;
-            this.overviewShips[i].forEach((cells) => {
+            this.overviewShips[i].forEach(cells => {
                 if (colorCount <= counts[i]) {
                     this.drawDark(cells);
                     colorCount += 1;
@@ -248,17 +224,18 @@ export class LevelScene extends Phaser.Scene {
         }
     }
 
-    private drawDark = (cells: Sprite[]) => {
+    /* tslint:disable-next-line:static */
+    private drawDark(cells: Sprite[]) {
         cells.forEach(cell => {
             cell.setAlpha(0.7);
         });
-    };
+    }
 
-    private drawLight = (cells: Sprite[]) => {
+    private drawLight(cells: Sprite[]) {
         cells.forEach(cell => {
             cell.setAlpha(0.15);
         });
-    };
+    }
 
     private updateSurroundings(x: number, y: number) {
         for (let i = y - 1; i <= y + 1; i++) {
@@ -278,24 +255,23 @@ export class LevelScene extends Phaser.Scene {
         if (i < 0 || j < 0 || i >= this.level.size || j >= this.level.size) {
             return CellState.WATER;
         } else {
-            return this.levelState[i][j].state;
+            return this.levelState[i][j].getState();
         }
     }
 
     private getShipState(i: number, j: number): CellState {
         let newState: CellState = CellState.GENERAL;
         // single
-        if (this.getCellState(i + 1, j) === CellState.WATER && this.getCellState(i - 1, j) === CellState.WATER && this.getCellState(i, j + 1) === CellState.WATER && this.getCellState(i, j - 1) === CellState.WATER) {
+        if (this.getCellState(i + 1, j) === CellState.WATER && this.getCellState(i - 1, j) === CellState.WATER
+            && this.getCellState(i, j + 1) === CellState.WATER && this.getCellState(i, j - 1) === CellState.WATER) {
             newState = CellState.SINGLE;
-        }
-        // block in between two other ships
-        else if (Cell.isShip(this.getCellState(i - 1, j)) && Cell.isShip(this.getCellState(i + 1, j)) ||
+        } else if (Cell.isShip(this.getCellState(i - 1, j)) && Cell.isShip(this.getCellState(i + 1, j)) ||
             Cell.isShip(this.getCellState(i, j - 1)) && Cell.isShip(this.getCellState(i, j + 1))) {
+            // block in between two other ships
             newState = CellState.BLOCK;
-        }
-        // up, down, left, right
-        else if (
+        } else if (
             Cell.isShip(this.getCellState(i, j - 1)) && this.getCellState(i, j + 1) === CellState.WATER) {
+            // up, down, left, right
             newState = CellState.LEFT;
         } else if (Cell.isShip(this.getCellState(i, j + 1)) && this.getCellState(i, j - 1) === CellState.WATER) {
             newState = CellState.RIGHT;
@@ -308,11 +284,7 @@ export class LevelScene extends Phaser.Scene {
         return newState;
     }
 
-    update(time: number, delta: number): void {
-    }
-
-
-    isLevelFinished(): boolean {
+    private isLevelFinished(): boolean {
         let solved = true;
         for (let i = 0; i < this.level.size; i++) {
             for (let j = 0; j < this.level.size; j++) {
@@ -328,19 +300,19 @@ export class LevelScene extends Phaser.Scene {
         return solved;
     }
 
-    public showRestartDialog(): void {
+    private showRestartDialog(): void {
         this.dialogShown = true;
-        let dialogGroup = this.add.group();
+        const dialogGroup = this.add.group();
         dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
 
-        let yesButton = this.add.sprite(220, 230, 'dialog');
+        const yesButton = this.add.sprite(220, 230, 'dialog');
         yesButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
             this.scene.start('LevelScene', {difficulty: this.level.difficulty, level: this.level.nr});
         });
         dialogGroup.add(this.add.text(220, 230, 'Yes', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
         dialogGroup.add(yesButton);
 
-        let noButton = this.add.sprite(380, 230, 'dialog');
+        const noButton = this.add.sprite(380, 230, 'dialog');
         noButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
             this.dialogShown = false;
             dialogGroup.destroy(true);
@@ -352,33 +324,34 @@ export class LevelScene extends Phaser.Scene {
         dialogGroup.add(this.add.text(300, 180, 'want to restart?', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
     }
 
-    public showWinDialog(): void {
+    private showWinDialog(): void {
         this.dialogShown = true;
-        let dialogGroup = this.add.group();
+        const dialogGroup = this.add.group();
         dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
 
-        let okButton = this.add.sprite(300, 230, 'dialog');
+        const okButton = this.add.sprite(300, 230, 'dialog');
         okButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
             this.scene.start('ChooseLevelScene', {difficulty: this.level.difficulty});
         });
         dialogGroup.add(this.add.text(300, 230, 'OK', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
         dialogGroup.add(okButton);
-        dialogGroup.add(this.add.text(300, 165, 'Congratulations, you won!', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(this.add.text(300, 165, 'Congratulations, you won!', {font: '22px'})
+            .setOrigin(0.5, 0.5).setTint(0x0));
     }
 
-    public showBackDialog(): void {
+    private showBackDialog(): void {
         this.dialogShown = true;
-        let dialogGroup = this.add.group();
+        const dialogGroup = this.add.group();
         dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
 
-        let yesButton = this.add.sprite(220, 230, 'dialog');
+        const yesButton = this.add.sprite(220, 230, 'dialog');
         yesButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
             this.scene.start('ChooseLevelScene', {difficulty: this.level.difficulty});
         });
         dialogGroup.add(this.add.text(220, 230, 'Yes', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
         dialogGroup.add(yesButton);
 
-        let noButton = this.add.sprite(380, 230, 'dialog');
+        const noButton = this.add.sprite(380, 230, 'dialog');
         noButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
             this.dialogShown = false;
             dialogGroup.destroy(true);
@@ -386,7 +359,9 @@ export class LevelScene extends Phaser.Scene {
         dialogGroup.add(this.add.text(380, 230, 'No', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
         dialogGroup.add(noButton);
 
-        dialogGroup.add(this.add.text(300, 150, 'Do you really want', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
-        dialogGroup.add(this.add.text(300, 180, 'to quit this level?', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(this.add.text(300, 150, 'Do you really want', {font: '24px'})
+            .setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(this.add.text(300, 180, 'to quit this level?', {font: '24px'})
+            .setOrigin(0.5, 0.5).setTint(0x0));
     }
 }

@@ -1,10 +1,10 @@
-import {LevelScene} from "../scenes/level.scene";
+import {LevelScene} from '../scenes/level.scene';
 
 export class NumberCell extends Phaser.GameObjects.Text {
     private currentScene: LevelScene;
-    public num: number;
+    private readonly num: number;
 
-    constructor(scene: LevelScene, x: number, y: number, num: number, levelSize: number) {
+    constructor(scene: LevelScene, x: number, y: number, num: number) {
         super(scene, x, y, num.toString(), {font: '24px'});
         this.setOrigin(0.5, 0.5);
         this.setTint(0x0);
@@ -14,7 +14,6 @@ export class NumberCell extends Phaser.GameObjects.Text {
     }
 
     public updateColor(shipCount: number) {
-        // console.log('updating color: num:', this.num, 'shipCount:', shipCount);
         this.clearTint();
         if (shipCount < this.num) {
             // incomplete: blue

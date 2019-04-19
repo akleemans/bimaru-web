@@ -1,16 +1,15 @@
-import {Difficulty} from "../level.service";
+import {Difficulty} from '../model/difficulty';
 
 export class MainScene extends Phaser.Scene {
-
     constructor() {
         super({
-            key: "MainScene"
+            key: 'MainScene',
         });
     }
 
-    preload(): void {
+    public preload(): void {
         // https://www.kleemans.ch/static/bimaru-web/
-        let assetPath = 'assets/';
+        const assetPath = 'assets/';
 
         // ui
         this.load.image('bg', assetPath + 'img/ui/bg.jpg');
@@ -45,7 +44,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('num8', assetPath + 'img/numbers/num8.png');
     }
 
-    create(): void {
+    public create(): void {
         // bg
         this.add.image(0, 0, 'bg').setOrigin(0, 0).setAlpha(0.3);
         this.add.image(256, 0, 'bg').setOrigin(0, 0).setAlpha(0.3);
@@ -65,8 +64,5 @@ export class MainScene extends Phaser.Scene {
         this.add.sprite(300, 340, 'hard').setScale(0.5).setInteractive().on('pointerdown', () => {
             this.scene.start('ChooseLevelScene', {difficulty: Difficulty.hard});
         });
-    }
-
-    update(time, delta): void {
     }
 }

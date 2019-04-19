@@ -1,27 +1,5 @@
-export class Level {
-    public nr: number;
-    public difficulty: number;
-    public size: number;
-    public baseGrid: string[];
-    public puzzleGrid: string[];
-    public solutionGrid: string[];
-
-    constructor(nr: number, difficulty: Difficulty, size: number, baseGrid: string[], solutionGrid: string[]) {
-        this.nr = nr;
-        this.difficulty = difficulty;
-        this.size = size;
-        this.baseGrid = baseGrid;
-        // deep copy for puzzleGrid
-        this.puzzleGrid = JSON.parse(JSON.stringify(baseGrid));
-        this.solutionGrid = solutionGrid;
-    }
-}
-
-export enum Difficulty {
-    easy,
-    medium,
-    hard
-}
+import {Level} from './level';
+import {Difficulty} from './model/difficulty';
 
 export class LevelService {
 
@@ -48,8 +26,9 @@ export class LevelService {
     }
 
     public static getLevelData(difficulty: Difficulty, nr: number): Level {
-        let offset = difficulty === Difficulty.easy ? 0 : (difficulty === Difficulty.medium ? 32 : 64);
-        let rawLevels = [
+        const offset = difficulty === Difficulty.easy ? 0 : (difficulty === Difficulty.medium ? 32 : 64);
+        /* tslint:disable:max-line-length */
+        const rawLevels = [
             '.....................................d.....s.....................b...........u......................31220304051231213250|wwwwwwwwwddwwwwwwwwbuwswwwwwwuwwwwwwwdwwwwwswwwuwwwwwwwdwwwwwwwwwbwdwswwwwwuwuwwrbblwwwwwswwwwwwwwww31220304051231213250',
             '..............................l.........b.......................3151241350132315|wrlwrlwswwwwwwwwwwdwwwwwwwbwwrlwdwuwwwwwbwwwwswsuwwwwwwwwwrbblws3151241350132315',
             '.....................r...s...................................r......................................42422202111130402081|swwwwwwwwwwwwwwwwswwwrlwwswwwwwwwwwwwwwwswrblwwwwwwwwwwwwwwwwrlwwwwwwwwwwwwwwwwwdwrbblwrbluwwwwwwwww42422202111130402081',
@@ -145,28 +124,27 @@ export class LevelService {
             '..............d...............s.............u....................................321213215411214313|rblwwwwswwwwwwdwwwwwwwwuwwwwwwswwwwdwwwwwwwwuwwwrbblwwrlwwwwwwdwwwwwwwwbswwwwwswu321213215411214313',
             '..s............................................................s.................231233123111312515|wwswwwwwwswwwwwwwwwwwwwwwswwdwwrlwwwwbwwwwwwwwuwwwwwwdwwwrbblwuswwwwwwwwwwwrblwrl231233123111312515',
             '.......................................................s............................................50603200404211310233|swdwrlwwwwwwuwwwwwdwwwwwwwwwbwwwwwwwwwbwswswwwwwuwwwwwwswwwwwwwwwwwwwwdwdwwwwwwwbwbwdwwwwwuwuwuwwwww50603200404211310233',
-            '..................................................................s.................................32101232244011124322|wwwwwrbblwwwwwwwwwwwwdwwwwwwwwwuwwwwwwwwwwwwwwwswwdwwwwwwwwdbwwwswswwbuwswwwwwwuwwwwwrlwwwwwwwwwwwrl32101232244011124322'
+            '..................................................................s.................................32101232244011124322|wwwwwrbblwwwwwwwwwwwwdwwwwwwwwwuwwwwwwwwwwwwwwwswwdwwwwwwwwdbwwwswswwbuwswwwwwwuwwwwwrlwwwwwwwwwwwrl32101232244011124322',
         ];
 
         return LevelService.parseLevel(nr, difficulty, rawLevels[nr + offset - 1]);
     }
 
-    static parseLevel(nr, difficulty, level: string): Level {
-        let part1 = level.split("|")[0];
-        let part2 = level.split("|")[1];
-        let size = Math.sqrt(part1.length + 1) - 1;
+    private static parseLevel(nr, difficulty, level: string): Level {
+        const part1 = level.split('|')[0];
+        const part2 = level.split('|')[1];
+        const size = Math.sqrt(part1.length + 1) - 1;
 
-        let puzzleGrid = LevelService.parseGridString(part1, size);
-        let solutionGrid = LevelService.parseGridString(part2, size);
+        const puzzleGrid = LevelService.parseGridString(part1, size);
+        const solutionGrid = LevelService.parseGridString(part2, size);
 
         return new Level(nr, difficulty, size, puzzleGrid, solutionGrid);
     }
 
-    static parseGridString(gridStr: string, size: number): string[] {
-        let grid = [];
-
+    private static parseGridString(gridStr: string, size: number): string[] {
+        const grid = [];
         for (let i = 0; i < size; i++) {
-            let line = [];
+            const line = [];
             for (let j = 0; j < size; j++) {
                 line.push(gridStr[i * size + j]);
             }
@@ -176,11 +154,11 @@ export class LevelService {
         }
 
         // add last line: numbers
-        let line = [];
+        const lastLine = [];
         for (let j = 0; j < size; j++) {
-            line.push(gridStr[size * size + j]);
+            lastLine.push(gridStr[size * size + j]);
         }
-        grid.push(line);
+        grid.push(lastLine);
 
         return grid;
     }

@@ -1,9 +1,10 @@
+/* tslint:disable-next-line:no-reference */
 /// <reference path="./phaser.d.ts"/>
 
-import "phaser";
-import {MainScene} from "./scenes/main.scene";
-import {LevelScene} from "./scenes/level.scene";
-import {ChooseLevelScene} from "./scenes/choose-level.scene";
+import 'phaser';
+import {ChooseLevelScene} from './scenes/choose-level.scene';
+import {LevelScene} from './scenes/level.scene';
+import {MainScene} from './scenes/main.scene';
 
 // main game configuration
 const config: GameConfig = {
@@ -11,22 +12,21 @@ const config: GameConfig = {
     height: 384,
     type: Phaser.WEBGL, // CANVAS | WEBGL
     backgroundColor: '#fff',
-    parent: "game",
+    parent: 'game',
     scene: [
         MainScene,
         ChooseLevelScene,
-        LevelScene
-    ]
+        LevelScene,
+    ],
 };
 
-// game class
 export class Game extends Phaser.Game {
-    constructor(config: GameConfig) {
-        super(config);
+    constructor(conf: GameConfig) {
+        super(conf);
     }
 }
 
 // when the page is loaded, create our game instance
 window.onload = () => {
-    new Game(config);
+    const game = new Game(config);
 };

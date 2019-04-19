@@ -1,37 +1,10 @@
 import Sprite = Phaser.GameObjects.Sprite;
-import {LevelScene} from "../scenes/level.scene";
-
-export enum CellState {
-    EMPTY = 'empty',
-    WATER = 'water',
-    GENERAL = 'general',
-    UP = 'up',
-    DOWN = 'down',
-    RIGHT = 'right',
-    LEFT = 'left',
-    BLOCK = 'block',
-    SINGLE = 'single'
-}
+import {LevelScene} from '../scenes/level.scene';
+import {CellState} from './cell-state';
 
 export class Cell extends Sprite {
-    private currentScene: LevelScene;
-    private posX: number;
-    private posY: number;
-    public fixed: boolean;
-    public state: CellState;
-
-    constructor(scene: LevelScene, posX: number, posY: number, xGrid: number, yGrid: number, state: CellState, fixed: boolean, levelSize: number) {
-        super(scene, xGrid, yGrid, state);
-        this.posX = posX;
-        this.posY = posY;
-        this.currentScene = scene;
-        this.currentScene.add.existing(this);
-        this.fixed = fixed;
-        this.state = state;
-        // TODO set scale according to levelSize
-        this.setScale(0.3, 0.3);
-        this.setInteractive();
-        this.on('pointerdown', this.tap);
+    public static isShip(state: CellState) {
+        return state !== CellState.EMPTY && state !== CellState.WATER;
     }
 
     public static getCellState(c: string) {
@@ -42,7 +15,7 @@ export class Cell extends Sprite {
         } else if (c === 's') {
             return CellState.SINGLE;
         } else if (c === 'b') {
-            return CellState.BLOCK
+            return CellState.BLOCK;
         } else if (c === 'u') {
             return CellState.UP;
         } else if (c === 'd') {
@@ -52,6 +25,26 @@ export class Cell extends Sprite {
         } else if (c === 'r') {
             return CellState.RIGHT;
         }
+    }
+
+    private currentScene: LevelScene;
+    private posX: number;
+    private posY: number;
+    private fixed: boolean;
+    private state: CellState;
+
+    public constructor(scene: LevelScene, posX: number, posY: number, xGrid: number, yGrid: number,
+                       state: CellState, fixed: boolean) {
+        super(scene, xGrid, yGrid, state);
+        this.posX = posX;
+        this.posY = posY;
+        this.currentScene = scene;
+        this.currentScene.add.existing(this);
+        this.fixed = fixed;
+        this.state = state;
+        this.setScale(0.3, 0.3);
+        this.setInteractive();
+        this.on('pointerdown', this.tap);
     }
 
     public tap(): void {
@@ -81,7 +74,7 @@ export class Cell extends Sprite {
         return this.state.charAt(0);
     }
 
-    public static isShip(state: CellState) {
-        return state !== CellState.EMPTY && state !== CellState.WATER;
+    public getState(): CellState {
+        return this.state;
     }
 }
