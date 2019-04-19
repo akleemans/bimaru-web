@@ -1,4 +1,5 @@
 import Sprite = Phaser.GameObjects.Sprite;
+import Pointer = Phaser.Input.Pointer;
 import {LevelScene} from '../scenes/level.scene';
 import {CellState} from './cell-state';
 
@@ -44,19 +45,32 @@ export class Cell extends Sprite {
         this.state = state;
         this.setScale(0.3, 0.3);
         this.setInteractive();
-        this.on('pointerdown', this.tap);
+        this.on('pointerdown', (pointer: Pointer) => {
+            this.tap(false);
+        });
+        this.on('pointerover', (pointer: Pointer) => {
+            if (pointer.isDown) {
+                this.tap(true);
+            }
+        });
     }
 
-    public tap(): void {
+    public tap(waterOnly: boolean): void {
         if (this.fixed || this.currentScene.isDialogShown()) {
             return;
         }
-        if (this.state === CellState.EMPTY) {
-            this.state = CellState.WATER;
-        } else if (this.state === CellState.WATER) {
-            this.state = CellState.GENERAL;
+        if (waterOnly) {
+            if (this.state === CellState.EMPTY) {
+                this.state = CellState.WATER;
+            }
         } else {
-            this.state = CellState.EMPTY;
+            if (this.state === CellState.EMPTY) {
+                this.state = CellState.WATER;
+            } else if (this.state === CellState.WATER) {
+                this.state = CellState.GENERAL;
+            } else {
+                this.state = CellState.EMPTY;
+            }
         }
 
         this.currentScene.updateLevel(this.posX, this.posY);
