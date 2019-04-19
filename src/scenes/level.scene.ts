@@ -130,12 +130,12 @@ export class LevelScene extends Phaser.Scene {
         twoShip1.push(this.add.sprite(464, 90, 'left').setScale(0.25, 0.25).setAlpha(0.15));
 
         const twoShip2: Sprite[] = [];
-        twoShip2.push(this.add.sprite(494, 90, 'right').setScale(0.25, 0.25).setAlpha(0.7));
-        twoShip2.push(this.add.sprite(520, 90, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+        twoShip2.push(this.add.sprite(494, 90, 'right').setScale(0.25, 0.25).setAlpha(0.15));
+        twoShip2.push(this.add.sprite(520, 90, 'left').setScale(0.25, 0.25).setAlpha(0.15));
 
         const twoShip3: Sprite[] = [];
-        twoShip3.push(this.add.sprite(550, 90, 'right').setScale(0.25, 0.25).setAlpha(0.7));
-        twoShip3.push(this.add.sprite(576, 90, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+        twoShip3.push(this.add.sprite(550, 90, 'right').setScale(0.25, 0.25).setAlpha(0.15));
+        twoShip3.push(this.add.sprite(576, 90, 'left').setScale(0.25, 0.25).setAlpha(0.15));
         this.overviewShips.push([twoShip1, twoShip2, twoShip3]);
 
         // 3
@@ -145,17 +145,17 @@ export class LevelScene extends Phaser.Scene {
         threeShip1.push(this.add.sprite(490, 60, 'left').setScale(0.25, 0.25).setAlpha(0.15));
 
         const threeShip2: Sprite[] = [];
-        threeShip2.push(this.add.sprite(524, 60, 'right').setScale(0.25, 0.25).setAlpha(0.7));
-        threeShip2.push(this.add.sprite(550, 60, 'block').setScale(0.25, 0.25).setAlpha(0.7));
-        threeShip2.push(this.add.sprite(576, 60, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+        threeShip2.push(this.add.sprite(524, 60, 'right').setScale(0.25, 0.25).setAlpha(0.15));
+        threeShip2.push(this.add.sprite(550, 60, 'block').setScale(0.25, 0.25).setAlpha(0.15));
+        threeShip2.push(this.add.sprite(576, 60, 'left').setScale(0.25, 0.25).setAlpha(0.15));
         this.overviewShips.push([threeShip1, threeShip2]);
 
         // 4
         const fourShip: Sprite[] = [];
-        fourShip.push(this.add.sprite(498, 30, 'right').setScale(0.25, 0.25).setAlpha(0.7));
-        fourShip.push(this.add.sprite(524, 30, 'block').setScale(0.25, 0.25).setAlpha(0.7));
-        fourShip.push(this.add.sprite(550, 30, 'block').setScale(0.25, 0.25).setAlpha(0.7));
-        fourShip.push(this.add.sprite(576, 30, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+        fourShip.push(this.add.sprite(498, 30, 'right').setScale(0.25, 0.25).setAlpha(0.15));
+        fourShip.push(this.add.sprite(524, 30, 'block').setScale(0.25, 0.25).setAlpha(0.15));
+        fourShip.push(this.add.sprite(550, 30, 'block').setScale(0.25, 0.25).setAlpha(0.15));
+        fourShip.push(this.add.sprite(576, 30, 'left').setScale(0.25, 0.25).setAlpha(0.15));
         this.overviewShips.push([fourShip]);
     }
 
@@ -195,7 +195,7 @@ export class LevelScene extends Phaser.Scene {
                 // 3-ships
                 if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) === CellState.BLOCK &&
                     this.getCellState(i, j + 2) === CellState.LEFT ||
-                    cellState === CellState.DOWN && this.getCellState(i, j + 1) === CellState.BLOCK &&
+                    cellState === CellState.DOWN && this.getCellState(i + 1, j) === CellState.BLOCK &&
                     this.getCellState(i + 2, j) === CellState.UP) {
                     counts[2] += 1;
                 }
@@ -203,8 +203,8 @@ export class LevelScene extends Phaser.Scene {
                 // 4-ships
                 if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) === CellState.BLOCK &&
                     this.getCellState(i, j + 2) === CellState.BLOCK && this.getCellState(i, j + 3) === CellState.LEFT ||
-                    cellState === CellState.DOWN && this.getCellState(i, j + 1) === CellState.BLOCK &&
-                    this.getCellState(i, j + 2) === CellState.BLOCK && this.getCellState(i + 3, j) === CellState.UP) {
+                    cellState === CellState.DOWN && this.getCellState(i + 1, j) === CellState.BLOCK &&
+                    this.getCellState(i + 2, j) === CellState.BLOCK && this.getCellState(i + 3, j) === CellState.UP) {
                     counts[3] += 1;
                 }
             }
@@ -214,7 +214,7 @@ export class LevelScene extends Phaser.Scene {
         for (let i = 0; i < 4; i++) {
             let colorCount = 0;
             this.overviewShips[i].forEach(cells => {
-                if (colorCount <= counts[i]) {
+                if (colorCount < counts[i]) {
                     this.drawDark(cells);
                     colorCount += 1;
                 } else {
