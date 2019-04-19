@@ -13,13 +13,14 @@ export class MainScene extends Phaser.Scene {
         let assetPath = 'assets/';
 
         // ui
-        this.load.image('bg', assetPath + 'img/bg/bg.jpg');
+        this.load.image('bg', assetPath + 'img/ui/bg.jpg');
         this.load.image('bimaru', assetPath + 'img/ui/bimaru.png');
         this.load.image('easy', assetPath + 'img/ui/easy.png');
         this.load.image('medium', assetPath + 'img/ui/medium.png');
         this.load.image('hard', assetPath + 'img/ui/hard.png');
         this.load.image('rectangle', assetPath + 'img/ui/rectangle.png');
         this.load.image('rectangle_green', assetPath + 'img/ui/rectangle_green.png');
+        this.load.image('dialog', assetPath + 'img/ui/dialog.png');
 
         // grid parts
         this.load.image('empty', assetPath + 'img/grid/empty.png');

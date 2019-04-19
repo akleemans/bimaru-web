@@ -56,7 +56,6 @@ export class Cell extends Sprite {
 
     public tap(): void {
         if (this.fixed || this.currentScene.isDialogShown()) {
-            console.log('Tap blocked.');
             return;
         }
         if (this.state === CellState.EMPTY) {
@@ -85,5 +84,4 @@ export class Cell extends Sprite {
     public static isShip(state: CellState) {
         return state !== CellState.EMPTY && state !== CellState.WATER;
     }
-
 }

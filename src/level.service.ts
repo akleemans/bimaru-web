@@ -184,7 +184,6 @@ export class LevelService {
 
         return grid;
     }
-
 }
 
 LevelService.init();

@@ -18,7 +18,7 @@ export class LevelScene extends Phaser.Scene {
     private offset = new Coords(16 + 35, 16);
     private level: Level;
     private levelState: Cell[][];
-    private finished: boolean;
+    // private finished: boolean;
     private colNumbers: NumberCell[];
     private rowNumbers: NumberCell[];
     private overviewShips: Sprite[][][];
@@ -42,7 +42,7 @@ export class LevelScene extends Phaser.Scene {
         this.rowNumbers = [];
         this.levelState = [];
         this.overviewShips = [];
-        this.finished = false;
+        // this.finished = false;
         this.dialogShown = false;
         console.log('fetching level for diff=', data.difficulty, 'level:', data.level);
         this.level = LevelService.getLevelData(data.difficulty, data.level);
@@ -173,7 +173,9 @@ export class LevelScene extends Phaser.Scene {
 
         // check for winning
         if (this.isLevelFinished()) {
-            this.finish();
+            // this.finished = true;
+            LevelService.addSolvedLevel(this.level.difficulty, this.level.nr);
+            this.showWinDialog();
         }
         /*
         if (this.finished || this.isLevelFinished()) {
@@ -328,47 +330,63 @@ export class LevelScene extends Phaser.Scene {
 
     public showRestartDialog(): void {
         this.dialogShown = true;
-        let dialogText = 'Do you really want to restart?';
-        // this.scene.start('LevelScene', {difficulty: this.level.difficulty, nr: this.level.nr});
+        let dialogGroup = this.add.group();
+        dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
+
+        let yesButton = this.add.sprite(220, 230, 'dialog');
+        yesButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
+            this.scene.start('LevelScene', {difficulty: this.level.difficulty, level: this.level.nr});
+        });
+        dialogGroup.add(this.add.text(220, 230, 'Yes', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(yesButton);
+
+        let noButton = this.add.sprite(380, 230, 'dialog');
+        noButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
+            this.dialogShown = false;
+            dialogGroup.destroy(true);
+        });
+        dialogGroup.add(this.add.text(380, 230, 'No', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(noButton);
+
+        dialogGroup.add(this.add.text(300, 150, 'Do you really', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(this.add.text(300, 180, 'want to restart?', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
     }
 
     public showWinDialog(): void {
         this.dialogShown = true;
-        let dialogText = 'Congratulations, you won!';
+        let dialogGroup = this.add.group();
+        dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
+
+        let okButton = this.add.sprite(300, 230, 'dialog');
+        okButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
+            this.scene.start('ChooseLevelScene', {difficulty: this.level.difficulty});
+        });
+        dialogGroup.add(this.add.text(300, 230, 'OK', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(okButton);
+        dialogGroup.add(this.add.text(300, 165, 'Congratulations, you won!', {font: '22px'}).setOrigin(0.5, 0.5).setTint(0x0));
     }
 
     public showBackDialog(): void {
         this.dialogShown = true;
-        let dialogText = 'Do you really want to quit the level?';
-
         let dialogGroup = this.add.group();
-        dialogGroup.add(this.add.image(300, 192, 'rectangle').setScale(3, 3));
+        dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
 
-        // yes / ok
-        dialogGroup.add(this.add.text(250, 192, 'Yes', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive());
-        let yesButton = this.add.sprite(250, 192, 'rectangle');
-        yesButton.setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
+        let yesButton = this.add.sprite(220, 230, 'dialog');
+        yesButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
             this.scene.start('ChooseLevelScene', {difficulty: this.level.difficulty});
         });
+        dialogGroup.add(this.add.text(220, 230, 'Yes', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
         dialogGroup.add(yesButton);
 
-        // no
-        dialogGroup.add(this.add.text(350, 192, 'No', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive());
-        let noButton = this.add.sprite(350, 192, 'rectangle');
-        noButton.setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
+        let noButton = this.add.sprite(380, 230, 'dialog');
+        noButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
             this.dialogShown = false;
             dialogGroup.destroy(true);
         });
+        dialogGroup.add(this.add.text(380, 230, 'No', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
         dialogGroup.add(noButton);
-    }
 
-
-    private finish() {
-        this.finished = true;
-        LevelService.addSolvedLevel(this.level.difficulty, this.level.nr);
-        this.showWinDialog();
-
-        // TODO move to dialog?
-        this.scene.start('ChooseLevelScene', {difficulty: this.level.difficulty});
+        dialogGroup.add(this.add.text(300, 150, 'Do you really want', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
+        dialogGroup.add(this.add.text(300, 180, 'to quit this level?', {font: '24px'}).setOrigin(0.5, 0.5).setTint(0x0));
     }
 }
