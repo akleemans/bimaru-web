@@ -25,7 +25,29 @@ export enum Difficulty {
 
 export class LevelService {
 
-    static getLevelData(difficulty: Difficulty, nr: number): Level {
+    public static solvedLevels = {};
+
+    public static init() {
+        LevelService.solvedLevels[Difficulty.easy] = [];
+        LevelService.solvedLevels[Difficulty.medium] = [];
+        LevelService.solvedLevels[Difficulty.hard] = [];
+    }
+
+    public static getMaxAvailableLevel(difficulty: Difficulty): number {
+        return Math.min(this.solvedLevels[difficulty].length + 3, 32);
+    }
+
+    public static getSolvedLevels(difficulty: Difficulty): number[] {
+        return this.solvedLevels[difficulty];
+    }
+
+    public static addSolvedLevel(difficulty: Difficulty, level: number): void {
+        if (this.solvedLevels[difficulty].indexOf(level) === -1) {
+            this.solvedLevels[difficulty].push(level);
+        }
+    }
+
+    public static getLevelData(difficulty: Difficulty, nr: number): Level {
         let offset = difficulty === Difficulty.easy ? 0 : (difficulty === Difficulty.medium ? 32 : 64);
         let rawLevels = [
             '.....................................d.....s.....................b...........u......................31220304051231213250|wwwwwwwwwddwwwwwwwwbuwswwwwwwuwwwwwwwdwwwwwswwwuwwwwwwwdwwwwwwwwwbwdwswwwwwuwuwwrbblwwwwwswwwwwwwwww31220304051231213250',
@@ -164,3 +186,5 @@ export class LevelService {
     }
 
 }
+
+LevelService.init();

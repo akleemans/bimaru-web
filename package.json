@@ -3,8 +3,11 @@
   "version": "0.0.1",
   "description": "Web version of the Android Bimaru version.",
   "keywords": [
-    "Android",
-    "Bimaru"
+    "Phaser",
+    "Bimaru",
+    "Web",
+    "Game",
+    "TypeScript"
   ],
   "devDependencies": {
     "expose-loader": "0.7.5",

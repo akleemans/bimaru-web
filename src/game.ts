@@ -7,7 +7,7 @@ import {ChooseLevelScene} from "./scenes/choose-level.scene";
 
 // main game configuration
 const config: GameConfig = {
-    width: 512,
+    width: 600, // 512
     height: 384,
     type: Phaser.WEBGL, // CANVAS | WEBGL
     backgroundColor: '#fff',

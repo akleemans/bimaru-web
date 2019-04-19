@@ -32,13 +32,12 @@ export class Cell extends Sprite {
         this.setScale(0.3, 0.3);
         this.setInteractive();
         this.on('pointerdown', this.tap);
-
     }
 
     public static getCellState(c: string) {
         if (c === '.') {
             return CellState.EMPTY;
-        } else if (c === 'x') {
+        } else if (c === 'w') {
             return CellState.WATER;
         } else if (c === 's') {
             return CellState.SINGLE;
@@ -56,8 +55,8 @@ export class Cell extends Sprite {
     }
 
     public tap(): void {
-        if (this.fixed) {
-            console.log('Tap on fixed cell.');
+        if (this.fixed || this.currentScene.isDialogShown()) {
+            console.log('Tap blocked.');
             return;
         }
         if (this.state === CellState.EMPTY) {

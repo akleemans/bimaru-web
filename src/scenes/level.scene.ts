@@ -1,6 +1,7 @@
 import {Level, LevelService} from "../level.service";
 import {Cell, CellState} from "../objects/Cell";
 import {NumberCell} from "../objects/NumberCell";
+import Sprite = Phaser.GameObjects.Sprite;
 
 export class Coords {
     x: number;
@@ -13,34 +14,54 @@ export class Coords {
 }
 
 export class LevelScene extends Phaser.Scene {
-    gridSize = 32;
-    private offset = new Coords(16, 16);
-
+    private gridSize = 32;
+    private offset = new Coords(16 + 35, 16);
     private level: Level;
-    private levelState: Cell[][] = [];
+    private levelState: Cell[][];
     private finished: boolean;
-    private colNumbers: NumberCell[] = [];
-    private rowNumbers: NumberCell[] = [];
+    private colNumbers: NumberCell[];
+    private rowNumbers: NumberCell[];
+    private overviewShips: Sprite[][][];
 
     private dialogShown: boolean;
     private dialogButton: Phaser.GameObjects.Sprite;
     private dialogButtonText: Phaser.GameObjects.BitmapText;
 
-    constructor() {
+    public constructor() {
         super({
             key: "LevelScene"
         });
     }
 
-    preload(): void {
+    public preload(): void {
     }
 
-    create(data): void {
+    public create(data): void {
+        // init
+        this.colNumbers = [];
+        this.rowNumbers = [];
+        this.levelState = [];
+        this.overviewShips = [];
         this.finished = false;
         this.dialogShown = false;
         console.log('fetching level for diff=', data.difficulty, 'level:', data.level);
         this.level = LevelService.getLevelData(data.difficulty, data.level);
         console.log('level create(), data:', data, 'level:', this.level);
+
+        // buttons
+        this.add.text(25, 30, '⇐', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive().on('pointerdown', () => {
+            if (!this.dialogShown) {
+                this.showBackDialog();
+            }
+        });
+        this.add.text(25, 60, '⤾', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive().on('pointerdown', () => {
+            if (!this.dialogShown) {
+                this.showRestartDialog();
+            }
+        });
+
+        // ship overview
+        this.drawOverview();
 
         // grid lines
         for (let i = 0; i < this.level.size + 1; i++) {
@@ -95,24 +116,54 @@ export class LevelScene extends Phaser.Scene {
 
         // update number colours & ship overview
         this.updateLevel(0, 0);
+    }
 
-        // TODO add reset button
-        // TODO add ship overview
-        // TODO add tint to numbers, according to line state
-        // TODO add "win" detection
+    private drawOverview() {
+        // 1
+        this.overviewShips.push([
+            [this.add.sprite(485, 120, 'single').setScale(0.25, 0.25).setAlpha(0.15)],
+            [this.add.sprite(515, 120, 'single').setScale(0.25, 0.25).setAlpha(0.15)],
+            [this.add.sprite(545, 120, 'single').setScale(0.25, 0.25).setAlpha(0.15)],
+            [this.add.sprite(575, 120, 'single').setScale(0.25, 0.25).setAlpha(0.15)],
+        ]);
 
-        /*
-        this.backgroundGroup = this.physics.add.group();
+        // 2
+        const twoShip1: Sprite[] = [];
+        twoShip1.push(this.add.sprite(438, 90, 'right').setScale(0.25, 0.25).setAlpha(0.15));
+        twoShip1.push(this.add.sprite(464, 90, 'left').setScale(0.25, 0.25).setAlpha(0.15));
 
-        // HUD
-        this.dialogButton = this.add.sprite(460, 40, 'dialog-button');
-        this.dialogButton.setOrigin(0.5, 0.5)
-            .setInteractive()
-            .on('pointerdown', () => {
-                this.showDialog();
-            });
-        this.dialogButtonText = this.add.bitmapText(460, 40, 'comic-font', 'pause', 18).setOrigin(0.5, 0.5);
-        */
+        const twoShip2: Sprite[] = [];
+        twoShip2.push(this.add.sprite(494, 90, 'right').setScale(0.25, 0.25).setAlpha(0.7));
+        twoShip2.push(this.add.sprite(520, 90, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+
+        const twoShip3: Sprite[] = [];
+        twoShip3.push(this.add.sprite(550, 90, 'right').setScale(0.25, 0.25).setAlpha(0.7));
+        twoShip3.push(this.add.sprite(576, 90, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+        this.overviewShips.push([twoShip1, twoShip2, twoShip3]);
+
+        // 3
+        const threeShip1: Sprite[] = [];
+        threeShip1.push(this.add.sprite(438, 60, 'right').setScale(0.25, 0.25).setAlpha(0.15));
+        threeShip1.push(this.add.sprite(464, 60, 'block').setScale(0.25, 0.25).setAlpha(0.15));
+        threeShip1.push(this.add.sprite(490, 60, 'left').setScale(0.25, 0.25).setAlpha(0.15));
+
+        const threeShip2: Sprite[] = [];
+        threeShip2.push(this.add.sprite(524, 60, 'right').setScale(0.25, 0.25).setAlpha(0.7));
+        threeShip2.push(this.add.sprite(550, 60, 'block').setScale(0.25, 0.25).setAlpha(0.7));
+        threeShip2.push(this.add.sprite(576, 60, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+        this.overviewShips.push([threeShip1, threeShip2]);
+
+        // 4
+        const fourShip: Sprite[] = [];
+        fourShip.push(this.add.sprite(498, 30, 'right').setScale(0.25, 0.25).setAlpha(0.7));
+        fourShip.push(this.add.sprite(524, 30, 'block').setScale(0.25, 0.25).setAlpha(0.7));
+        fourShip.push(this.add.sprite(550, 30, 'block').setScale(0.25, 0.25).setAlpha(0.7));
+        fourShip.push(this.add.sprite(576, 30, 'left').setScale(0.25, 0.25).setAlpha(0.7));
+        this.overviewShips.push([fourShip]);
+    }
+
+    public isDialogShown(): boolean {
+        return this.dialogShown;
     }
 
     public updateLevel(x: number, y: number): void {
@@ -121,17 +172,20 @@ export class LevelScene extends Phaser.Scene {
         this.updateShipOverviewStatus();
 
         // check for winning
+        if (this.isLevelFinished()) {
+            this.finish();
+        }
+        /*
         if (this.finished || this.isLevelFinished()) {
             console.log('level solved!');
             if (!this.finished) {
                 this.finish();
             }
             return;
-        }
+        }*/
     }
 
     private updateNumberTints() {
-        // horizontal
         for (let i = 0; i < this.level.size; i++) {
             let shipCountX = 0, shipCountY = 0;
             for (let j = 0; j < this.level.size; j++) {
@@ -142,18 +196,67 @@ export class LevelScene extends Phaser.Scene {
                     shipCountY += 1
                 }
             }
-            // TODO
             this.rowNumbers[i].updateColor(shipCountX);
             this.colNumbers[i].updateColor(shipCountY);
         }
-
-
-        // vertical
     }
 
     private updateShipOverviewStatus() {
-        // TODO
+        const counts = [0, 0, 0, 0];
+        for (let i = 0; i < this.level.size; i++) {
+            for (let j = 0; j < this.level.size; j++) {
+                const cellState = this.getCellState(i, j);
+                // singles
+                if (cellState === CellState.SINGLE) {
+                    counts[0] += 1;
+                }
+
+                // 2-ships
+                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) == CellState.LEFT ||
+                    cellState === CellState.DOWN && this.getCellState(i + 1, j) == CellState.UP) {
+                    counts[1] += 1;
+                }
+
+                // 3-ships
+                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i, j + 2) == CellState.LEFT ||
+                    cellState === CellState.DOWN && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i + 2, j) == CellState.UP) {
+                    counts[2] += 1;
+                }
+
+                // 4-ships
+                if (cellState === CellState.RIGHT && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i, j + 2) == CellState.BLOCK && this.getCellState(i, j + 3) == CellState.LEFT ||
+                    cellState === CellState.DOWN && this.getCellState(i, j + 1) == CellState.BLOCK && this.getCellState(i, j + 2) == CellState.BLOCK && this.getCellState(i + 3, j) == CellState.UP) {
+                    counts[3] += 1;
+                }
+
+            }
+        }
+
+        // singles
+        for (let i = 0; i < 4; i++) {
+            let colorCount = 0;
+            this.overviewShips[i].forEach((cells) => {
+                if (colorCount <= counts[i]) {
+                    this.drawDark(cells);
+                    colorCount += 1;
+                } else {
+                    this.drawLight(cells);
+                }
+            });
+        }
     }
+
+    private drawDark = (cells: Sprite[]) => {
+        cells.forEach(cell => {
+            cell.setAlpha(0.7);
+        });
+    };
+
+    private drawLight = (cells: Sprite[]) => {
+        cells.forEach(cell => {
+            cell.setAlpha(0.15);
+        });
+    };
 
     private updateSurroundings(x: number, y: number) {
         for (let i = y - 1; i <= y + 1; i++) {
@@ -208,7 +311,6 @@ export class LevelScene extends Phaser.Scene {
 
 
     isLevelFinished(): boolean {
-        // TODO
         let solved = true;
         for (let i = 0; i < this.level.size; i++) {
             for (let j = 0; j < this.level.size; j++) {
@@ -224,77 +326,49 @@ export class LevelScene extends Phaser.Scene {
         return solved;
     }
 
-    /*
-        showDialog() {
-            this.dialogShown = true;
-            this.dialogButton.setVisible(false);
-            this.dialogButtonText.setVisible(false);
+    public showRestartDialog(): void {
+        this.dialogShown = true;
+        let dialogText = 'Do you really want to restart?';
+        // this.scene.start('LevelScene', {difficulty: this.level.difficulty, nr: this.level.nr});
+    }
 
-            let dialogGroup = this.add.group();
-            dialogGroup.add(this.add.image(256, 192, 'dialog'));
+    public showWinDialog(): void {
+        this.dialogShown = true;
+        let dialogText = 'Congratulations, you won!';
+    }
 
-            let headerText = this.finished ? 'you won!' : 'pause';
-            dialogGroup.add(this.add.bitmapText(256, 140, 'comic-font', headerText, 34).setOrigin(0.5, 0.5));
+    public showBackDialog(): void {
+        this.dialogShown = true;
+        let dialogText = 'Do you really want to quit the level?';
 
-            let levelText = "Level: " + LevelScene.getSetLevel(this.levelNr);
-            let movesText = "Number of moves: " + this.player.getMoves();
-            dialogGroup.add(this.add.bitmapText(60, 190, 'comic-font', levelText, 20).setOrigin(0, 0.5));
-            dialogGroup.add(this.add.bitmapText(60, 220, 'comic-font', movesText, 20).setOrigin(0, 0.5));
+        let dialogGroup = this.add.group();
+        dialogGroup.add(this.add.image(300, 192, 'rectangle').setScale(3, 3));
 
-            // actions ----------
+        // yes / ok
+        dialogGroup.add(this.add.text(250, 192, 'Yes', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive());
+        let yesButton = this.add.sprite(250, 192, 'rectangle');
+        yesButton.setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
+            this.scene.start('ChooseLevelScene', {difficulty: this.level.difficulty});
+        });
+        dialogGroup.add(yesButton);
 
-            // cancel
-            let cancelButton = this.add.sprite(460, 100, 'dialog-button-empty');
-            cancelButton.setOrigin(0.5, 0.5).setInteractive()
-                .on('pointerdown', () => {
-                    this.dialogShown = false;
-                    dialogGroup.destroy(true);
-                    this.dialogButton.setVisible(true);
-                    this.dialogButtonText.setVisible(true);
-                });
-            dialogGroup.add(cancelButton);
+        // no
+        dialogGroup.add(this.add.text(350, 192, 'No', {font: '26px'}).setOrigin(0.5, 0.5).setTint(0x0).setInteractive());
+        let noButton = this.add.sprite(350, 192, 'rectangle');
+        noButton.setOrigin(0.5, 0.5).setInteractive().on('pointerdown', () => {
+            this.dialogShown = false;
+            dialogGroup.destroy(true);
+        });
+        dialogGroup.add(noButton);
+    }
 
-            // menu
-            dialogGroup.add(this.add.bitmapText(90, 280, 'comic-font', "menu", 20).setOrigin(0.5, 0.5));
-            let menuButton = this.add.sprite(90, 280, 'dialog-button-empty');
-            menuButton.setOrigin(0.5, 0.5).setInteractive()
-                .on('pointerdown', () => {
-                    this.scene.start('MainScene');
-                });
-            dialogGroup.add(menuButton);
 
-            // replay
-            dialogGroup.add(this.add.bitmapText(195, 280, 'comic-font', "retry", 20).setOrigin(0.5, 0.5));
-            let replayButton = this.add.sprite(195, 280, 'dialog-button-empty');
-            replayButton.setOrigin(0.5, 0.5).setInteractive()
-                .on('pointerdown', () => {
-                    this.scene.restart({level: this.levelNr});
-                });
-            dialogGroup.add(replayButton);
-
-            // prev
-            dialogGroup.add(this.add.bitmapText(300, 280, 'comic-font', "prev", 20).setOrigin(0.5, 0.5));
-            let previousButton = this.add.sprite(300, 280, 'dialog-button-empty');
-            previousButton.setOrigin(0.5, 0.5).setInteractive()
-                .on('pointerdown', () => {
-                    this.scene.start('LevelScene', {level: Math.max(1, this.levelNr - 1)});
-                });
-            dialogGroup.add(previousButton);
-
-            // next
-            dialogGroup.add(this.add.bitmapText(405, 280, 'comic-font', "next", 20).setOrigin(0.5, 0.5));
-            let nextButton = this.add.sprite(405, 280, 'dialog-button-empty');
-            nextButton.setOrigin(0.5, 0.5).setInteractive()
-                .on('pointerdown', () => {
-                    this.scene.start('LevelScene', {level: Math.min(96, this.levelNr + 1)});
-                });
-            dialogGroup.add(nextButton);
-        }
-        */
-
-    finish() {
-        console.log('finish()');
+    private finish() {
         this.finished = true;
-        // this.showDialog();
+        LevelService.addSolvedLevel(this.level.difficulty, this.level.nr);
+        this.showWinDialog();
+
+        // TODO move to dialog?
+        this.scene.start('ChooseLevelScene', {difficulty: this.level.difficulty});
     }
 }
