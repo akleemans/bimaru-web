@@ -59,6 +59,7 @@ export class Cell extends Sprite {
         if (this.fixed || this.currentScene.isDialogShown()) {
             return;
         }
+        const oldState = this.state;
         if (waterOnly) {
             if (this.state === CellState.EMPTY) {
                 this.state = CellState.WATER;
@@ -72,9 +73,11 @@ export class Cell extends Sprite {
                 this.state = CellState.EMPTY;
             }
         }
-
-        this.currentScene.updateLevel(this.posX, this.posY);
-        this.setTexture(this.state);
+        // only update on change
+        if (oldState !== this.state) {
+            this.currentScene.updateLevel(this.posX, this.posY);
+            this.setTexture(this.state);
+        }
     }
 
     public setState(newState: CellState) {

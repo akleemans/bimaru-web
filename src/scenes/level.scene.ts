@@ -303,7 +303,7 @@ export class LevelScene extends Phaser.Scene {
     private showRestartDialog(): void {
         this.dialogShown = true;
         const dialogGroup = this.add.group();
-        dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
+        dialogGroup.add(this.add.image(300, 192, 'dialog_big'));
 
         const yesButton = this.add.sprite(220, 230, 'dialog');
         yesButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
@@ -327,7 +327,7 @@ export class LevelScene extends Phaser.Scene {
     private showWinDialog(): void {
         this.dialogShown = true;
         const dialogGroup = this.add.group();
-        dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
+        dialogGroup.add(this.add.image(300, 192, 'dialog_big'));
 
         const okButton = this.add.sprite(300, 230, 'dialog');
         okButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {
@@ -342,7 +342,7 @@ export class LevelScene extends Phaser.Scene {
     private showBackDialog(): void {
         this.dialogShown = true;
         const dialogGroup = this.add.group();
-        dialogGroup.add(this.add.image(300, 192, 'dialog').setScale(1.5, 1.5));
+        dialogGroup.add(this.add.image(300, 192, 'dialog_big'));
 
         const yesButton = this.add.sprite(220, 230, 'dialog');
         yesButton.setOrigin(0.5, 0.5).setScale(0.4, 0.4).setInteractive().on('pointerdown', () => {

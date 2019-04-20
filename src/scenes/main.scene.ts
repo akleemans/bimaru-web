@@ -20,6 +20,7 @@ export class MainScene extends Phaser.Scene {
         this.load.image('rectangle', assetPath + 'img/ui/rectangle.png');
         this.load.image('rectangle_green', assetPath + 'img/ui/rectangle_green.png');
         this.load.image('dialog', assetPath + 'img/ui/dialog.png');
+        this.load.image('dialog_big', assetPath + 'img/ui/dialog_big.png');
 
         // grid parts
         this.load.image('empty', assetPath + 'img/grid/empty.png');
