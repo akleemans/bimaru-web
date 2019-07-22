@@ -1,5 +1,12 @@
 # bimaru-web
-Web version of the Android Bimaru game
+Web version of the Android Bimaru game.
+
+[Play it here!](https://www.kleemans.ch/bimaru-battleship)
+
+<p align="center">
+    <img src="https://github.com/akleemans/bimaru-web/blob/master/bimaru.png" alt="bimaru-web">
+</p>
+
 
 ## Install
 
