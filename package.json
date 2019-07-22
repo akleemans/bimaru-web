@@ -10,16 +10,16 @@
     "TypeScript"
   ],
   "devDependencies": {
-    "expose-loader": "0.7.5",
-    "ts-loader": "5.3.0",
-    "tslint": "^5.16.0",
-    "typescript": "3.4.2",
-    "webpack": "4.25.1",
-    "webpack-cli": "3.1.2",
-    "webpack-dev-server": "^3.3.1"
+    "expose-loader": "^0.7.5",
+    "ts-loader": "^5.4.5",
+    "tslint": "^5.18.0",
+    "typescript": "^3.5.3",
+    "webpack": "^4.36.1",
+    "webpack-cli": "^3.3.6",
+    "webpack-dev-server": "^3.7.2"
   },
   "dependencies": {
-    "phaser": "3.16.2"
+    "phaser": "^3.18.1"
   },
   "scripts": {
     "dev": "webpack --mode development && webpack-dev-server --mode development",
